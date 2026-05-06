@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录页面</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2>用户登录</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="phone">手机号</label>
+                    <input type="tel" id="phone" name="phone" placeholder="请输入手机号" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" placeholder="请输入密码" required>
+                </div>
+                <button type="button" id="loginBtn" class="login-btn">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="captchaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>拖动验证</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="captcha-container">
+                    <canvas id="captchaCanvas" width="300" height="150"></canvas>
+                    <div class="slider-container">
+                        <div class="slider-track">
+                            <div class="slider-button" id="sliderBtn">拖动验证</div>
+                        </div>
+                    </div>
+                    <p id="captchaStatus" class="status">请拖动滑块完成验证</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content success-content">
+            <div class="success-icon">✓</div>
+            <h3>验证成功</h3>
+            <p>正在提交登录信息...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

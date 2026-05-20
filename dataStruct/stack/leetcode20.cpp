@@ -23,7 +23,7 @@ bool isValid(string s) {
     
 
     char stack[10005];
-    int top=-1;
+    int top=-1;//
 
 
 

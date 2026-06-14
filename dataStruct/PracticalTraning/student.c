@@ -68,9 +68,25 @@ void menuMain(){
 
 }
 
+static int StuNoValid(school* sc, int stdNo){
+
+	for(int i=1;i<=sc->cnt;i++){
+
+		if(sc->std[i].StdNo==stdNo){
+
+			return 0;//学号已存在，不合法
+
+		}
+
+	}
+
+	return 1;//学号合法
+
+}
+
 
 //输入各种信息创建学生
-static student* createStd(){
+static student* createStd(school* sc){
 
 	student* s=malloc(sizeof(student));
 	if(s==NULL){
@@ -90,39 +106,81 @@ static student* createStd(){
 
 	scanf("%d",&s->classNo);
 
+	while(1)
+	{
+		printf("\t请输入学生学号：\n");//需要保证唯一,学号合法
+		int stdNo1;
+		scanf("%d",&stdNo1);
 
-	printf("\t请输入学生学号：\n");//需要保证唯一,等待实现
+		int vaild=StuNoValid(sc, stdNo1);
 
-	scanf("%d",&s->StdNo);
+		if(!vaild){
+			printf("\t学号已存在，无法创建学生信息,请重新输入\n");
+			
+		}else{
+			s->StdNo=stdNo1;
+			break;
+		}
+
+	}
 
 	
+	
+	while(1)
+	{
+		printf("\t请输入学生性别：\n");
+		char gender[15];
+		scanf("%s",gender);
+
+		if(strcmp(gender,"男")==0 || strcmp(gender,"女")==0){
+			strcpy(s->gender,gender);
+			break;
+		}else{
+			printf("\t性别不合法,重新输入\n");
+		}
+
+	}
+
+
+	printf("\t请输入学生成绩：\n");
+	scanf("%d",&s->score);
+
+
 
 	return s;
 
 } 
 
 
-void addsStd(school* sc){
 
+
+//添加学生信息到学生数组里面,先检查是否满
+void addsStd(school* sc){
+	
 
 	printf("\t======================\n");
 	printf("\t选择了录入学生信息\n");
 
 	
-	student* s=createStd();
+	student* s=createStd(sc);
 
 	if(s){
 		printf("\t学生创建成功\n");
+	}else{
+		printf("\t学生创建失败\n");
+		free(s);
+		return;
 	}
 
 	if(sc->cnt>=maxx-1){
 		printf("\t学生人数已满，无法添加更多学生\n");
+		free(s);
 		return;
 	}
 	++sc->cnt;//学生人数加1,0号不存储学生信息
 
 	sc->std[sc->cnt]=*s;//添加到学生数组中
-	
+	free(s);
 
 
 };
@@ -139,10 +197,12 @@ void PrintStd(school* sc){
 
 	{
 		printf("\t第%d名学生:\n",i);
-		printf("学生名字为：%s\n",sc->std[sc->cnt].name);
-		printf("学生年龄为：%d\n",sc->std[sc->cnt].age);
-		printf("学生学号为：%d\n",sc->std[sc->cnt].StdNo);
-		printf("学生班级号为：%d\n",sc->std[sc->cnt].classNo);
+		printf("\t学生名字为：%s\n",sc->std[i].name);
+		printf("\t学生性别为：%s\n",sc->std[i].gender);
+		printf("\t学生年龄为：%d\n",sc->std[i].age);
+		printf("\t学生成绩为：%d\n",sc->std[i].score);
+		printf("\t学生学号为：%d\n",sc->std[i].StdNo);
+		printf("\t学生班级号为：%d\n",sc->std[i].classNo);
 
 	}
 
@@ -166,7 +226,7 @@ void saveStd(school* sc) {
     for (int i = 1; i <= sc->cnt; i++) {
         printf("\t正在写入第 %d 条记录...\n", i); // ← 探针2
         student st = sc->std[i];
-        fprintf(fp, "%d %d %d %s\n", st.classNo, st.StdNo, st.age, st.name);
+        fprintf(fp, "%d %d %d %d %s %s\n", st.classNo, st.StdNo, st.age, st.score, st.name, st.gender);
     }
     printf("\t写入循环结束，准备关闭文件...\n");   // ← 探针3
 
@@ -188,7 +248,7 @@ void loadStd(school* sc){
 
 	sc->cnt=0;//清空原来的学生信息
 	
-	while(fscanf(fp,"%d %d %d %s\n",&sc->std[sc->cnt+1].classNo,&sc->std[sc->cnt+1].StdNo,&sc->std[sc->cnt+1].age,sc->std[sc->cnt+1].name)==4){
+	while(fscanf(fp,"%d %d %d %d %s %s\n",&sc->std[sc->cnt+1].classNo,&sc->std[sc->cnt+1].StdNo,&sc->std[sc->cnt+1].age,&sc->std[sc->cnt+1].score,sc->std[sc->cnt+1].name,sc->std[sc->cnt+1].gender)==6){
 		sc->cnt++;//学生人数加1
 	}
 
@@ -230,7 +290,9 @@ int serachStd(school* sc){
 		if(sc->std[i].StdNo==stdNo){
 			printf("\t找到了学生信息！\n");
 			printf("\t学生名字为：%s\n",sc->std[i].name);
+			printf("\t学生性别为：%s\n",sc->std[i].gender);
 			printf("\t学生年龄为：%d\n",sc->std[i].age);
+			printf("\t学生成绩为：%d\n",sc->std[i].score);
 			printf("\t学生学号为：%d\n",sc->std[i].StdNo);
 			printf("\t学生班级号为：%d\n",sc->std[i].classNo);
 
@@ -277,7 +339,7 @@ void modifyStd(school* sc){
 
 		printf("\t请输入新的学生信息：\n");
 
-		student* s=createStd();
+		student* s=createStd(sc);
 
 		sc->std[idx]=*s;//修改学生信息
 

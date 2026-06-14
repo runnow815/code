@@ -14,7 +14,9 @@ typedef struct stdu{
 
 	int age;
 
-    // char sex[5];
+    char gender[5];
+
+    int score;
 
     int classNo;//班级号
 

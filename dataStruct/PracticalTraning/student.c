@@ -6,7 +6,7 @@
 
 #include<string.h>
 
-#define maxx 1000+5
+#define MAX_STU 1005
 //第0个不存 最多存1000个学生
 
 //初始化学生管理系统，分配内存并设置默认值
@@ -22,7 +22,7 @@ school* initSys(){
 		return NULL;
 
 	}
-	student* std=malloc(sizeof(student)*maxx);//分配足够大的数组
+	student* std=malloc(sizeof(student)*MAX_STU);//分配足够大的数组
 
 	if(std==NULL)
 
@@ -96,7 +96,7 @@ static student* createStd(school* sc){
 
 	printf("\t请输入学生姓名：(长度不超过10)\n");
 
-	scanf("%s",s->name);
+	scanf("%24s",s->name);
 
 	printf("\t请输入学生年龄：\n");
 
@@ -130,7 +130,7 @@ static student* createStd(school* sc){
 	{
 		printf("\t请输入学生性别：\n");
 		char gender[15];
-		scanf("%s",gender);
+		scanf("%14s",gender);
 
 		if(strcmp(gender,"男")==0 || strcmp(gender,"女")==0){
 			strcpy(s->gender,gender);
@@ -164,15 +164,12 @@ void addsStd(school* sc){
 	
 	student* s=createStd(sc);
 
-	if(s){
-		printf("\t学生创建成功\n");
-	}else{
+	if(!s){
 		printf("\t学生创建失败\n");
-		free(s);
 		return;
 	}
 
-	if(sc->cnt>=maxx-1){
+	if(sc->cnt>=MAX_STU-1){
 		printf("\t学生人数已满，无法添加更多学生\n");
 		free(s);
 		return;
@@ -181,6 +178,7 @@ void addsStd(school* sc){
 
 	sc->std[sc->cnt]=*s;//添加到学生数组中
 	free(s);
+	printf("\t学生创建成功\n");
 
 
 };
@@ -189,9 +187,14 @@ void addsStd(school* sc){
 
 void PrintStd(school* sc){
 
-	
+
 	printf("\t======================\n");
 	printf("\t选择了打印学生信息\n");
+
+	if(sc->cnt==0){
+		printf("\t当前没有学生信息\n");
+		return;
+	}
 
 	for(int i=1;i<=sc->cnt;i++)
 
@@ -206,7 +209,6 @@ void PrintStd(school* sc){
 
 	}
 
-	
 
 };
 
@@ -221,14 +223,11 @@ void saveStd(school* sc) {
         printf("\t打开文件失败，无法保存学生信息\n");
         return;
     }
-    printf("\t文件打开成功，准备写入...\n");   // ← 探针1
 
     for (int i = 1; i <= sc->cnt; i++) {
-        printf("\t正在写入第 %d 条记录...\n", i); // ← 探针2
         student st = sc->std[i];
         fprintf(fp, "%d %d %d %d %s %s\n", st.classNo, st.StdNo, st.age, st.score, st.name, st.gender);
     }
-    printf("\t写入循环结束，准备关闭文件...\n");   // ← 探针3
 
     fclose(fp);
     printf("\t保存了%d条学生信息\n", sc->cnt);
@@ -239,22 +238,29 @@ void saveStd(school* sc) {
 //再从文件中读取学生信息并添加到学生数组中
 void loadStd(school* sc){
 
-	
+
 	printf("\t======================\n");
 	printf("\t选择了读取学生信息\n");
 
 	FILE* fp=fopen("student.txt","r");//打开文件
-	if(fp==NULL)return;
+	if(fp==NULL){
+		printf("\t未找到 student.txt，请先录入并保存\n");
+		return;
+	}
 
 	sc->cnt=0;//清空原来的学生信息
-	
-	while(fscanf(fp,"%d %d %d %d %s %s\n",&sc->std[sc->cnt+1].classNo,&sc->std[sc->cnt+1].StdNo,&sc->std[sc->cnt+1].age,&sc->std[sc->cnt+1].score,sc->std[sc->cnt+1].name,sc->std[sc->cnt+1].gender)==6){
-		sc->cnt++;//学生人数加1
+	student tmp;
+	while(sc->cnt < MAX_STU-1 &&
+	      fscanf(fp,"%d %d %d %d %s %s\n",
+	             &tmp.classNo, &tmp.StdNo, &tmp.age, &tmp.score,
+	             tmp.name, tmp.gender)==6){
+		sc->cnt++;
+		sc->std[sc->cnt]=tmp;
 	}
 
 	fclose(fp);
 	printf("\t读取了%d条学生信息\n",sc->cnt);
-	
+
 
 };
 
@@ -336,23 +342,29 @@ void modifyStd(school* sc){
 
 
 	if(idx){
+		// 临时移除原学号，避免创建新学生时"学号已存在"误判
+		int oldNo = sc->std[idx].StdNo;
+		sc->std[idx].StdNo = -1;
 
 		printf("\t请输入新的学生信息：\n");
-
 		student* s=createStd(sc);
 
-		sc->std[idx]=*s;//修改学生信息
+		if(s) {
+			sc->std[idx]=*s;//修改学生信息
+			free(s);
+		} else {
+			// 创建失败，恢复原学号
+			sc->std[idx].StdNo = oldNo;
+		}
 
 	} else printf("\t没有找到学生信息，无法修改\n");
-
 
 
 }
 
 
 
-//输入姓名删除 (学号唯一更好删除)
-//输入学号删除
+//按学号删除学生信息（学号唯一，适合作为删除依据）
 void delStu(school* sc){
 
 	printf("\t======================\n");

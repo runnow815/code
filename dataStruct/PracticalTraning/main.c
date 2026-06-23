@@ -9,33 +9,41 @@ int main() {
 
 	system("chcp 65001 >nul");
 
-	
-	printf("\t欢迎使用学生管理系统\n"); 
-	school* sc=initSys();
 
-	
+	printf("\t欢迎使用学生管理系统\n");
+	school* sc=initSys();
+	if(sc==NULL){
+		printf("\t系统初始化失败，程序退出\n");
+		return 1;
+	}
+
+
 
 
 	while(1)
-	{ 
+	{
 
-	
+
 		printf("\t===================\n");
 		menuMain();
 
 
 
 		printf("\t===================\n");
-		printf("\t请选择操作\n"); 
+		printf("\t请选择操作\n");
 
 
 		int choice;
-		scanf("%d",&choice);
+		if(scanf("%d",&choice)!=1){
+			printf("\t请输入数字\n");
+			while(getchar()!='\n');//清空输入缓冲区
+			continue;
+		}
 
 
 		switch(choice){
 
-		
+
 
 			case 1:
 
@@ -63,7 +71,7 @@ int main() {
 
 			case 5:
 
-				
+
 
 				printf("学生人数为%d\n",cntStu(sc));
 
@@ -93,6 +101,10 @@ int main() {
 				scanf("%d",&c);
 				if(c)saveStd(sc);
 
+				//释放动态内存
+				free(sc->std);
+				free(sc);
+
 				printf("\t退出系统\n");
 				exit(0);
 
@@ -100,18 +112,18 @@ int main() {
 
 				printf("\t请输入正确的数字\n");
 
-				break;	
+				break;
 
 
 		}
 
-	
 
-	} 
 
-	
+	}
 
-	
+
+
+
 
 	return 0;
 
